@@ -1,0 +1,51 @@
+user_id,username,department,role,account_status,created_date
+USR001,user001,Engineering,Employee,Active,09-10-2025
+USR002,user002,HR,Developer,Active,15-04-2025
+USR003,user003,Engineering,Administrator,Active,09-03-2026
+USR004,user004,Finance,Employee,Active,27-08-2025
+USR005,user005,Operations,Administrator,Active,23-07-2025
+USR006,user006,Engineering,Administrator,Active,05-04-2026
+USR007,user007,Operations,Manager,Active,07-01-2025
+USR008,user008,Support,Developer,Active,15-12-2025
+USR009,user009,IT,Developer,Active,11-12-2025
+USR010,user010,Finance,Employee,Active,03-01-2026
+USR011,user011,Support,Manager,Active,14-02-2025
+USR012,user012,Engineering,Security Analyst,Active,23-01-2026
+USR013,user013,Finance,Administrator,Active,06-10-2026
+USR014,user014,Operations,Manager,Active,13-03-2025
+USR015,user015,Finance,Developer,Active,23-03-2025
+USR016,user016,Support,Developer,Active,25-01-2026
+USR017,user017,IT,Security Analyst,Active,09-01-2026
+USR018,user018,HR,Manager,Active,01-10-2025
+USR019,user019,Engineering,Employee,Active,25-06-2025
+USR020,user020,Operations,Developer,Active,24-01-2026
+USR021,user021,IT,Administrator,Active,29-11-2025
+USR022,user022,Support,Employee,Active,02-02-2025
+USR023,user023,Support,Manager,Active,09-03-2025
+USR024,user024,HR,Administrator,Active,19-11-2025
+USR025,user025,HR,Security Analyst,Active,15-04-2026
+USR026,user026,HR,Manager,Active,29-07-2026
+USR027,user027,Operations,Manager,Active,15-03-2026
+USR028,user028,Operations,Security Analyst,Active,22-05-2025
+USR029,user029,Operations,Security Analyst,Active,18-02-2025
+USR030,user030,Support,Employee,Active,13-06-2025
+USR031,user031,Support,Security Analyst,Active,30-01-2026
+USR032,user032,Sales,Administrator,Disabled,26-06-2026
+USR033,user033,IT,Administrator,Active,12-01-2025
+USR034,user034,Engineering,Employee,Active,04-07-2026
+USR035,user035,Support,Manager,Active,15-12-2025
+USR036,user036,Finance,Manager,Active,10-04-2026
+USR037,user037,Finance,Manager,Disabled,02-07-2025
+USR038,user038,Operations,Employee,Active,02-11-2025
+USR039,user039,Support,Administrator,Active,06-06-2025
+USR040,user040,IT,Developer,Active,28-06-2026
+USR041,user041,Finance,Administrator,Active,20-01-2025
+USR042,user042,Finance,Manager,Active,11-11-2025
+USR043,user043,HR,Employee,Active,04-08-2026
+USR044,user044,Finance,Employee,Active,12-03-2025
+USR045,user045,Support,Administrator,Active,12-05-2025
+USR046,user046,Engineering,Security Analyst,Active,19-06-2025
+USR047,user047,IT,Administrator,Active,10-03-2026
+USR048,user048,HR,Administrator,Active,25-07-2025
+USR049,user049,Engineering,Manager,Active,18-01-2026
+USR050,user050,Sales,Administrator,Active,11-09-2025

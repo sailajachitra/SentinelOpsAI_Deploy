@@ -1,0 +1,41 @@
+ADMIN USER/ASSET MANAGEMENT + EVENTS THAT UPDATE THE DATASET AND THE ML PLOTS
+=============================================================================
+
+1. Administrator can add and remove users and assets
+----------------------------------------------------
+User Management (Administrator only)
+  - Application accounts: add (username, password >= 8 chars, role) and remove.
+    Guards: you cannot remove the account you are signed in with, and the last active
+    Administrator cannot be removed.
+  - User directory (the people events refer to): add (ID auto-numbered if left empty) and remove.
+Assets (add/remove buttons are shown to the Administrator only; Analyst / Incident Manager still see the list)
+  - Add: ID (auto AST### if empty), name, type, valid IP, criticality, environment. Remove.
+Removing a directory user or an asset KEEPS every event/alert that referred to it; only the link
+is cleared (the confirm box shows how many events are affected). Every add/remove is in the Audit Trail.
+Both lists are written through to data/users.csv and data/assets.csv, so a removed record does not
+come back when the application restarts. The three demo logins are now created only on an EMPTY
+database (before, removing "analyst" would have been undone at the next start).
+
+2. A new event now changes the dataset, the models and the plots
+-----------------------------------------------------------------
+Why the ML plots never changed before
+  - ROC / Precision-Recall / confusion matrix / importance came from ONE training run (evaluation.json).
+    Nothing retrained when an event was entered, so those plots could not move.
+  - Entered events were stored in the database only; data/security_events.csv never changed.
+  - Events whose type does not belong to a pattern (e.g. a benign file_access) were not drawn on any graph.
+What happens now when you press "Predict and save event" (or import a CSV)
+  1. The event is validated (IP, port, time, ranges), scored by the detector + five pattern models.
+  2. It is APPENDED to data/security_events.csv (label left blank = unknown ground truth).
+  3. ALL models retrain in a background thread (atomic file swap, bursts of events are merged into one
+     extra run). New events are used as provisional rows: their PREDICTED label is used for TRAINING ONLY.
+     The held-out test split uses real ground truth only, so the reported metrics stay honest.
+  4. ML Model Lab shows "Retraining models..." and reloads itself when the new models are ready; the
+     pattern graphs, live-prediction charts and Dashboard refresh as before.
+  5. Parameter-curves graph now draws every new event (solid gold = this pattern, dashed gold = other/benign).
+Confirm the real outcome: open the event, choose Benign / Malicious (+ pattern) and "Save label".
+The dataset row is updated in place and the event becomes real ground truth for the next training run.
+To train on confirmed labels only, set TRAIN_ON_PREDICTED=0 in .env.
+Both overall models (Random Forest and XGBoost) are now saved, so new events can be plotted for either.
+
+Files changed: app.py, services.py, config.py, ml/train.py, sentinelops_pattern_graphs.py,
+templates/users.html, assets.html, event_new.html, event_detail.html, reports.html, .env.example, tests/test_smoke.py

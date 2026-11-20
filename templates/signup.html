@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create account · SentinelOps AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/login.css') }}" rel="stylesheet">
+</head>
+<body class="login-page">
+<div class="stage">
+  <section class="hero"><div class="hero-brand"><span class="mark">✦</span><span><b>SentinelOps</b><small>AI SECURITY OPERATIONS</small></span></div></section>
+  <svg class="curve" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M80 0 C 71 22, 58 58, 53 100 L100 100 L100 0 Z"/></svg>
+  <main class="card-wrap">
+    <form class="card" method="post" novalidate>
+      <h1>Create your account</h1>
+      <p class="lead">We’ll email a 6-digit code to confirm your address.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}
+      <div class="flash {{ category }}" role="alert">{{ message }}</div>{% endfor %}{% endwith %}
+      <label for="username">Username<span>*</span></label>
+      <input id="username" name="username" type="text" placeholder="Choose a username" autocomplete="username" minlength="3" maxlength="40" required autofocus>
+      <label for="email">Email address<span>*</span></label>
+      <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+      <label for="password">Password<span>*</span></label>
+      <div class="pw"><input id="password" name="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" minlength="8" required>
+        <button type="button" class="eye" id="togglePw" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></div>
+      <label for="confirm">Confirm password<span>*</span></label>
+      <input id="confirm" name="confirm" type="password" placeholder="Repeat the password" autocomplete="new-password" required>
+      <button class="submit" type="submit">Send verification code</button>
+      <p class="signup">Already have an account? <a href="{{ url_for('auth_login') }}">Sign in</a></p>
+    </form>
+  </main>
+</div>
+<script>
+const pw=document.getElementById('password'),eye=document.getElementById('togglePw'),cf=document.getElementById('confirm');
+eye.addEventListener('click',()=>{const s=pw.type==='password';pw.type=cf.type=s?'text':'password';eye.classList.toggle('on',s);});
+</script>
+</body></html>

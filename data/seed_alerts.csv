@@ -1,0 +1,151 @@
+alert_id,event_id,alert_title,model_score,severity,status,assigned_to,is_false_positive_review_candidate,ground_truth_label
+ALT0001,EVT00031,Unusual but potentially benign privilege change,0.768,Medium,New,USR001,Yes,Benign
+ALT0002,EVT00710,Suspicious privilege change pattern,0.939,Critical,Escalated,USR011,No,Malicious
+ALT0003,EVT00125,Suspicious network connection pattern,0.72,Critical,In Progress,USR039,No,Malicious
+ALT0004,EVT00225,Suspicious privilege change pattern,0.788,Critical,In Progress,USR041,No,Malicious
+ALT0005,EVT00855,Suspicious process execution pattern,0.777,Critical,New,USR011,No,Malicious
+ALT0006,EVT00750,Suspicious privilege change pattern,0.92,High,In Progress,USR006,No,Malicious
+ALT0007,EVT00790,Suspicious network connection pattern,0.827,High,New,USR047,No,Malicious
+ALT0008,EVT00810,Suspicious network connection pattern,0.87,Critical,In Progress,USR014,No,Malicious
+ALT0009,EVT00775,Suspicious login failure pattern,0.885,Critical,Escalated,USR022,No,Malicious
+ALT0010,EVT00770,Suspicious data transfer pattern,0.891,Critical,In Progress,USR016,No,Malicious
+ALT0011,EVT00615,Suspicious privilege change pattern,0.899,Critical,In Progress,USR014,No,Malicious
+ALT0012,EVT00470,Suspicious network connection pattern,0.844,Critical,New,USR045,No,Malicious
+ALT0013,EVT00060,Suspicious login failure pattern,0.756,High,Escalated,USR031,No,Malicious
+ALT0014,EVT00820,Suspicious data transfer pattern,0.721,High,Escalated,USR012,No,Malicious
+ALT0015,EVT00340,Suspicious network connection pattern,0.832,Critical,In Progress,USR035,No,Malicious
+ALT0016,EVT00695,Suspicious network connection pattern,0.742,High,Escalated,USR002,No,Malicious
+ALT0017,EVT00455,Suspicious login failure pattern,0.961,Critical,Escalated,USR008,No,Malicious
+ALT0018,EVT00495,Suspicious login failure pattern,0.815,Critical,Escalated,USR023,No,Malicious
+ALT0019,EVT00405,Suspicious network connection pattern,0.824,High,New,USR030,No,Malicious
+ALT0020,EVT00680,Suspicious login failure pattern,0.82,High,In Progress,USR001,No,Malicious
+ALT0021,EVT00025,Suspicious network connection pattern,0.78,High,In Progress,USR044,No,Malicious
+ALT0022,EVT00332,Unusual but potentially benign login success,0.76,Medium,New,USR006,Yes,Benign
+ALT0023,EVT00542,Unusual but potentially benign login failure,0.732,Medium,In Progress,USR015,Yes,Benign
+ALT0024,EVT00350,Suspicious privilege change pattern,0.783,Critical,In Progress,USR003,No,Malicious
+ALT0025,EVT00808,Unusual but potentially benign login success,0.593,Low,New,USR013,Yes,Benign
+ALT0026,EVT00450,Suspicious network connection pattern,0.986,Critical,New,USR018,No,Malicious
+ALT0027,EVT00690,Suspicious network connection pattern,0.874,Critical,New,USR036,No,Malicious
+ALT0028,EVT00760,Suspicious login failure pattern,0.772,High,New,USR038,No,Malicious
+ALT0029,EVT00075,Suspicious process execution pattern,0.755,High,New,USR017,No,Malicious
+ALT0030,EVT00635,Suspicious process execution pattern,0.972,High,Escalated,USR047,No,Malicious
+ALT0031,EVT00220,Suspicious login failure pattern,0.931,High,Escalated,USR002,No,Malicious
+ALT0032,EVT00045,Suspicious network connection pattern,0.988,Critical,Escalated,USR036,No,Malicious
+ALT0033,EVT00685,Suspicious privilege change pattern,0.958,High,In Progress,USR042,No,Malicious
+ALT0034,EVT00720,Suspicious login failure pattern,0.902,High,In Progress,USR028,No,Malicious
+ALT0035,EVT00600,Suspicious login failure pattern,0.948,Critical,In Progress,USR008,No,Malicious
+ALT0036,EVT00390,Suspicious login failure pattern,0.904,Critical,In Progress,USR024,No,Malicious
+ALT0037,EVT00230,Suspicious data transfer pattern,0.86,High,Escalated,USR015,No,Malicious
+ALT0038,EVT00935,Suspicious login failure pattern,0.733,Critical,Escalated,USR029,No,Malicious
+ALT0039,EVT00337,Unusual but potentially benign privilege change,0.602,Medium,New,USR022,Yes,Benign
+ALT0040,EVT00080,Suspicious data transfer pattern,0.742,High,Escalated,USR015,No,Malicious
+ALT0041,EVT00190,Suspicious data transfer pattern,0.984,Critical,New,USR016,No,Malicious
+ALT0042,EVT00065,Suspicious privilege change pattern,0.773,Critical,In Progress,USR005,No,Malicious
+ALT0043,EVT00415,Suspicious privilege change pattern,0.889,High,New,USR031,No,Malicious
+ALT0044,EVT00900,Suspicious data transfer pattern,0.837,High,Escalated,USR041,No,Malicious
+ALT0045,EVT00150,Suspicious network connection pattern,0.972,Critical,New,USR007,No,Malicious
+ALT0046,EVT00404,Unusual but potentially benign login failure,0.643,Medium,New,USR022,Yes,Benign
+ALT0047,EVT00840,Suspicious login failure pattern,0.86,High,New,USR050,No,Malicious
+ALT0048,EVT00662,Unusual but potentially benign network connection,0.676,Medium,New,USR041,Yes,Benign
+ALT0049,EVT00590,Suspicious data transfer pattern,0.841,High,New,USR004,No,Malicious
+ALT0050,EVT00890,Suspicious privilege change pattern,0.968,Critical,In Progress,USR045,No,Malicious
+ALT0051,EVT00020,Suspicious privilege change pattern,0.738,High,New,USR029,No,Malicious
+ALT0052,EVT00995,Suspicious privilege change pattern,0.735,Critical,New,USR007,No,Malicious
+ALT0053,EVT00666,Unusual but potentially benign network connection,0.696,Low,Closed - Benign,USR025,Yes,Benign
+ALT0054,EVT00540,Suspicious process execution pattern,0.828,Critical,New,USR039,No,Malicious
+ALT0055,EVT00274,Unusual but potentially benign data transfer,0.725,Low,Closed - Benign,USR025,Yes,Benign
+ALT0056,EVT00826,Unusual but potentially benign dns query,0.641,Medium,In Progress,USR040,Yes,Benign
+ALT0057,EVT00088,Unusual but potentially benign process execution,0.546,Low,Closed - Benign,USR034,Yes,Benign
+ALT0058,EVT00430,Suspicious data transfer pattern,0.809,High,New,USR007,No,Malicious
+ALT0059,EVT00100,Suspicious privilege change pattern,0.723,High,Escalated,USR013,No,Malicious
+ALT0060,EVT00240,Suspicious process execution pattern,0.964,High,Escalated,USR033,No,Malicious
+ALT0061,EVT00652,Unusual but potentially benign data transfer,0.587,Medium,Closed - Benign,USR047,Yes,Benign
+ALT0062,EVT00755,Suspicious login failure pattern,0.888,High,New,USR009,No,Malicious
+ALT0063,EVT00400,Suspicious data transfer pattern,0.935,High,New,USR020,No,Malicious
+ALT0064,EVT00565,Suspicious privilege change pattern,0.878,Critical,In Progress,USR038,No,Malicious
+ALT0065,EVT00022,Unusual but potentially benign dns query,0.75,Low,New,USR031,Yes,Benign
+ALT0066,EVT00131,Unusual but potentially benign privilege change,0.6,Medium,Closed - Benign,USR024,Yes,Benign
+ALT0067,EVT00010,Suspicious privilege change pattern,0.982,High,New,USR016,No,Malicious
+ALT0068,EVT00115,Suspicious privilege change pattern,0.857,High,In Progress,USR023,No,Malicious
+ALT0069,EVT00120,Suspicious network connection pattern,0.773,High,Escalated,USR013,No,Malicious
+ALT0070,EVT00625,Suspicious data transfer pattern,0.932,Critical,New,USR043,No,Malicious
+ALT0071,EVT00469,Unusual but potentially benign network connection,0.644,Medium,In Progress,USR045,Yes,Benign
+ALT0072,EVT00975,Suspicious privilege change pattern,0.809,Critical,Escalated,USR020,No,Malicious
+ALT0073,EVT00285,Suspicious process execution pattern,0.833,High,New,USR030,No,Malicious
+ALT0074,EVT00525,Suspicious process execution pattern,0.957,High,In Progress,USR015,No,Malicious
+ALT0075,EVT00730,Suspicious network connection pattern,0.968,High,Escalated,USR015,No,Malicious
+ALT0076,EVT00215,Suspicious login failure pattern,0.846,High,New,USR031,No,Malicious
+ALT0077,EVT00619,Unusual but potentially benign privilege change,0.711,Medium,In Progress,USR025,Yes,Benign
+ALT0078,EVT00805,Suspicious login failure pattern,0.775,High,New,USR024,No,Malicious
+ALT0079,EVT00095,Suspicious network connection pattern,0.723,Critical,New,USR036,No,Malicious
+ALT0080,EVT00575,Suspicious privilege change pattern,0.751,Critical,In Progress,USR013,No,Malicious
+ALT0081,EVT00490,Suspicious data transfer pattern,0.89,Critical,New,USR002,No,Malicious
+ALT0082,EVT00365,Suspicious data transfer pattern,0.774,Critical,New,USR015,No,Malicious
+ALT0083,EVT00555,Suspicious login failure pattern,0.959,High,In Progress,USR036,No,Malicious
+ALT0084,EVT00325,Suspicious data transfer pattern,0.786,High,New,USR012,No,Malicious
+ALT0085,EVT00981,Unusual but potentially benign login success,0.739,Low,New,USR044,Yes,Benign
+ALT0086,EVT00945,Suspicious data transfer pattern,0.757,High,In Progress,USR014,No,Malicious
+ALT0087,EVT00870,Suspicious process execution pattern,0.802,High,In Progress,USR024,No,Malicious
+ALT0088,EVT00326,Unusual but potentially benign login failure,0.692,Medium,In Progress,USR005,Yes,Benign
+ALT0089,EVT00850,Suspicious login failure pattern,0.752,High,New,USR013,No,Malicious
+ALT0090,EVT00030,Suspicious data transfer pattern,0.864,Critical,In Progress,USR039,No,Malicious
+ALT0091,EVT00242,Unusual but potentially benign network connection,0.632,Low,New,USR049,Yes,Benign
+ALT0092,EVT00585,Suspicious process execution pattern,0.886,High,Escalated,USR019,No,Malicious
+ALT0093,EVT00990,Suspicious process execution pattern,0.933,Critical,New,USR004,No,Malicious
+ALT0094,EVT00980,Suspicious data transfer pattern,0.89,Critical,New,USR033,No,Malicious
+ALT0095,EVT00650,Suspicious data transfer pattern,0.981,Critical,New,USR047,No,Malicious
+ALT0096,EVT00745,Suspicious data transfer pattern,0.742,Critical,Escalated,USR040,No,Malicious
+ALT0097,EVT00445,Suspicious network connection pattern,0.738,Critical,Escalated,USR049,No,Malicious
+ALT0098,EVT00660,Suspicious process execution pattern,0.857,Critical,Escalated,USR030,No,Malicious
+ALT0099,EVT00310,Suspicious process execution pattern,0.768,Critical,Escalated,USR045,No,Malicious
+ALT0100,EVT00335,Suspicious network connection pattern,0.85,Critical,In Progress,USR018,No,Malicious
+ALT0101,EVT00580,Suspicious privilege change pattern,0.877,High,New,USR015,No,Malicious
+ALT0102,EVT00420,Suspicious privilege change pattern,0.962,Critical,New,USR026,No,Malicious
+ALT0103,EVT00205,Suspicious login failure pattern,0.779,Critical,In Progress,USR037,No,Malicious
+ALT0104,EVT00330,Suspicious network connection pattern,0.762,Critical,In Progress,USR036,No,Malicious
+ALT0105,EVT00355,Suspicious data transfer pattern,0.743,High,In Progress,USR029,No,Malicious
+ALT0106,EVT00535,Suspicious process execution pattern,0.86,High,Escalated,USR003,No,Malicious
+ALT0107,EVT00485,Suspicious network connection pattern,0.846,Critical,In Progress,USR029,No,Malicious
+ALT0108,EVT00290,Suspicious process execution pattern,0.846,Critical,In Progress,USR032,No,Malicious
+ALT0109,EVT00410,Suspicious privilege change pattern,0.806,Critical,New,USR012,No,Malicious
+ALT0110,EVT00280,Suspicious privilege change pattern,0.839,Critical,Escalated,USR005,No,Malicious
+ALT0111,EVT00345,Suspicious login failure pattern,0.817,High,In Progress,USR033,No,Malicious
+ALT0112,EVT00752,Unusual but potentially benign file access,0.653,Low,Closed - Benign,USR015,Yes,Benign
+ALT0113,EVT00640,Suspicious login failure pattern,0.747,High,In Progress,USR003,No,Malicious
+ALT0114,EVT00265,Suspicious data transfer pattern,0.867,Critical,New,USR044,No,Malicious
+ALT0115,EVT00655,Suspicious privilege change pattern,0.809,Critical,Escalated,USR050,No,Malicious
+ALT0116,EVT00675,Suspicious login failure pattern,0.905,Critical,New,USR046,No,Malicious
+ALT0117,EVT00055,Suspicious data transfer pattern,0.883,High,Escalated,USR048,No,Malicious
+ALT0118,EVT00917,Unusual but potentially benign file access,0.661,Medium,New,USR050,Yes,Benign
+ALT0119,EVT00955,Suspicious login failure pattern,0.801,Critical,In Progress,USR026,No,Malicious
+ALT0120,EVT00725,Suspicious network connection pattern,0.942,High,In Progress,USR042,No,Malicious
+ALT0121,EVT00780,Suspicious data transfer pattern,0.858,High,In Progress,USR015,No,Malicious
+ALT0122,EVT00425,Suspicious login failure pattern,0.781,High,In Progress,USR015,No,Malicious
+ALT0123,EVT00689,Unusual but potentially benign privilege change,0.654,Medium,In Progress,USR030,Yes,Benign
+ALT0124,EVT00950,Suspicious network connection pattern,0.812,High,In Progress,USR013,No,Malicious
+ALT0125,EVT00571,Unusual but potentially benign privilege change,0.631,Medium,New,USR029,Yes,Benign
+ALT0126,EVT00392,Unusual but potentially benign login success,0.637,Low,Closed - Benign,USR009,Yes,Benign
+ALT0127,EVT00250,Suspicious process execution pattern,0.876,High,In Progress,USR048,No,Malicious
+ALT0128,EVT00639,Unusual but potentially benign login failure,0.523,Medium,Closed - Benign,USR015,Yes,Benign
+ALT0129,EVT00440,Suspicious process execution pattern,0.833,Critical,Escalated,USR035,No,Malicious
+ALT0130,EVT00885,Suspicious process execution pattern,0.801,High,Escalated,USR003,No,Malicious
+ALT0131,EVT00130,Suspicious process execution pattern,0.969,High,In Progress,USR037,No,Malicious
+ALT0132,EVT00508,Unusual but potentially benign process execution,0.684,Medium,Closed - Benign,USR014,Yes,Benign
+ALT0133,EVT00860,Suspicious process execution pattern,0.976,High,Escalated,USR025,No,Malicious
+ALT0134,EVT00825,Suspicious privilege change pattern,0.771,High,In Progress,USR037,No,Malicious
+ALT0135,EVT00930,Suspicious data transfer pattern,0.98,Critical,New,USR011,No,Malicious
+ALT0136,EVT00047,Unusual but potentially benign dns query,0.547,Low,New,USR045,Yes,Benign
+ALT0137,EVT00630,Suspicious login failure pattern,0.883,High,New,USR013,No,Malicious
+ALT0138,EVT00800,Suspicious privilege change pattern,0.739,Critical,In Progress,USR014,No,Malicious
+ALT0139,EVT00670,Suspicious login failure pattern,0.783,High,In Progress,USR004,No,Malicious
+ALT0140,EVT00595,Suspicious privilege change pattern,0.82,High,New,USR021,No,Malicious
+ALT0141,EVT00505,Suspicious login failure pattern,0.952,Critical,In Progress,USR011,No,Malicious
+ALT0142,EVT00275,Suspicious network connection pattern,0.987,High,Escalated,USR027,No,Malicious
+ALT0143,EVT00700,Suspicious process execution pattern,0.849,High,In Progress,USR014,No,Malicious
+ALT0144,EVT00927,Unusual but potentially benign data transfer,0.554,Low,Closed - Benign,USR028,Yes,Benign
+ALT0145,EVT00237,Unusual but potentially benign login failure,0.733,Medium,New,USR039,Yes,Benign
+ALT0146,EVT00740,Suspicious privilege change pattern,0.875,Critical,Escalated,USR013,No,Malicious
+ALT0147,EVT00520,Suspicious privilege change pattern,0.856,Critical,In Progress,USR013,No,Malicious
+ALT0148,EVT00434,Unusual but potentially benign network connection,0.522,Low,Closed - Benign,USR005,Yes,Benign
+ALT0149,EVT00460,Suspicious login failure pattern,0.943,High,Escalated,USR022,No,Malicious
+ALT0150,EVT00185,Suspicious login failure pattern,0.966,Critical,In Progress,USR030,No,Malicious

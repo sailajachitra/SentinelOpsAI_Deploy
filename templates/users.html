@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}User Management · SentinelOps AI{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">ADMINISTRATION</div><h1>User Management</h1>
+<p>Add or remove the accounts that can sign in, and the people that security events refer to.</p></div></div>
+
+<section class="panel mb-4">
+<div class="panel-heading"><div><h2>Application accounts</h2><p>People who can sign in to SentinelOps (email or username + password + emailed code). Everything here is saved in the database; the role decides what they can open.</p></div><span class="panel-tag">{{ users|length }} ACCOUNTS</span></div>
+<form method="post" action="{{ url_for('user_add') }}" class="row g-2 align-items-end mb-3">
+  <div class="col-md-2"><label class="form-label" for="newUsername">Username</label><input class="form-control" id="newUsername" name="username" required minlength="3" maxlength="40" pattern="[A-Za-z0-9_.\-]+" autocomplete="off"></div>
+  <div class="col-md-3"><label class="form-label" for="newEmail">Email (receives login code)</label><input class="form-control" id="newEmail" name="email" type="email" required maxlength="255" autocomplete="off"></div>
+  <div class="col-md-2"><label class="form-label" for="newPassword">Password (min 8)</label><input class="form-control" id="newPassword" name="password" type="password" required minlength="8" autocomplete="new-password"></div>
+  <div class="col-md-2"><label class="form-label" for="newRole">Role</label><select class="form-select" id="newRole" name="role">{% for r in roles %}<option {% if r=='Analyst' %}selected{% endif %}>{{ r }}</option>{% endfor %}</select></div>
+  <div class="col-md-2"><button class="btn btn-primary w-100">＋ Add account</button></div>
+</form>
+<div class="table-responsive"><table class="table align-middle"><thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Created</th><th class="text-end">Action</th></tr></thead><tbody>
+{% for u in users %}<tr>
+<td>{{ u.username }}{% if u.id == current_user.id %} <span class="badge text-bg-secondary">you</span>{% endif %}</td><td>{{ u.email or '—' }}</td><td>{{ u.role }}</td>
+<td>{% if not u.email_verified %}<span class="status-pill muted">Unverified</span>{% elif u.active %}<span class="status-pill success">Active</span>{% else %}<span class="status-pill danger">Disabled</span>{% endif %}</td>
+<td>{{ u.created_at.strftime('%d %b %Y') if u.created_at else '—' }}</td>
+<td class="text-end text-nowrap">
+<button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{ u.id }}" data-username="{{ u.username }}" data-email="{{ u.email or '' }}" data-role="{{ u.role }}" data-active="{{ 1 if u.active else 0 }}" data-self="{{ 1 if u.id == current_user.id else 0 }}">Edit</button>
+{% if u.id != current_user.id %}<form method="post" action="{{ url_for('user_delete', account_id=u.id) }}" class="d-inline" onsubmit='return confirm({{ ("Remove the account " ~ u.username ~ "? They will no longer be able to sign in.")|tojson }})'><button class="btn btn-sm btn-outline-danger">Remove</button></form>{% endif %}</td></tr>
+{% endfor %}</tbody></table></div>
+</section>
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editTitle" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><form class="modal-content" id="editForm" method="post">
+  <div class="modal-header"><h5 class="modal-title" id="editTitle">Edit account</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+  <div class="modal-body">
+    <div class="mb-3"><label class="form-label" for="editUsername">Username</label><input class="form-control" id="editUsername" name="username" required minlength="3" maxlength="40" pattern="[A-Za-z0-9_.\-]+"></div>
+    <div class="mb-3"><label class="form-label" for="editEmail">Email</label><input class="form-control" id="editEmail" name="email" type="email" required maxlength="255"></div>
+    <div class="mb-3"><label class="form-label" for="editRole">Role</label><select class="form-select" id="editRole" name="role">{% for r in roles %}<option>{{ r }}</option>{% endfor %}</select></div>
+    <div class="mb-3"><label class="form-label" for="editPassword">New password <span class="text-secondary">(leave empty to keep the current one)</span></label><input class="form-control" id="editPassword" name="password" type="password" minlength="8" autocomplete="new-password"></div>
+    <div class="form-check"><input class="form-check-input" type="checkbox" id="editActive" name="active" value="1"><label class="form-check-label" for="editActive">Account active (can sign in)</label></div>
+    <div class="form-text" id="editSelfNote" hidden>This is your own account, so your role and active status can’t be changed here.</div>
+  </div>
+  <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary">Save changes</button></div>
+</form></div></div>
+
+<section class="panel">
+<div class="panel-heading"><div><h2>User directory</h2><p>The people that events and alerts refer to. Removing someone keeps their events; only the link is cleared.</p></div><span class="panel-tag">{{ directory|length }} USERS</span></div>
+<form method="post" action="{{ url_for('directory_user_add') }}" class="row g-2 align-items-end mb-3">
+  <div class="col-md-2"><label class="form-label" for="dirId">User ID</label><input class="form-control" id="dirId" name="user_id" placeholder="{{ suggested_user_id }}" maxlength="20"></div>
+  <div class="col-md-2"><label class="form-label" for="dirName">Username</label><input class="form-control" id="dirName" name="username" required maxlength="80"></div>
+  <div class="col-md-2"><label class="form-label" for="dirDept">Department</label><input class="form-control" id="dirDept" name="department" list="deptList" maxlength="80"><datalist id="deptList">{% for d in directory|map(attribute='department')|unique|sort %}<option value="{{ d }}">{% endfor %}</datalist></div>
+  <div class="col-md-2"><label class="form-label" for="dirRole">Source role</label><input class="form-control" id="dirRole" name="role" list="roleList" maxlength="80"><datalist id="roleList">{% for d in directory|map(attribute='role')|unique|sort %}<option value="{{ d }}">{% endfor %}</datalist></div>
+  <div class="col-md-2"><label class="form-label" for="dirStatus">Status</label><select class="form-select" id="dirStatus" name="account_status">{% for st in statuses %}<option>{{ st }}</option>{% endfor %}</select></div>
+  <div class="col-md-2"><button class="btn btn-primary w-100">＋ Add user</button></div>
+  <div class="col-12"><small class="text-secondary">Leave User ID empty to use the next free one ({{ suggested_user_id }}).</small></div>
+</form>
+<div class="table-responsive"><table class="table align-middle"><thead><tr><th>User ID</th><th>Username</th><th>Department</th><th>Source role</th><th>Status</th><th>Events</th><th class="text-end">Action</th></tr></thead><tbody>
+{% for u in directory %}{% set n = event_counts.get(u.user_id, 0) %}<tr><td>{{ u.user_id }}</td><td>{{ u.username }}</td><td>{{ u.department }}</td><td>{{ u.role }}</td><td>{{ u.account_status }}</td><td>{{ n }}</td>
+<td class="text-end"><form method="post" action="{{ url_for('directory_user_delete', user_id=u.user_id) }}" class="d-inline" onsubmit='return confirm({{ ("Remove " ~ u.user_id ~ " (" ~ u.username ~ ") from the directory? " ~ n ~ " event(s) will be kept but detached from this user.")|tojson }})'><button class="btn btn-sm btn-outline-danger">Remove</button></form></td></tr>
+{% else %}<tr><td colspan="7" class="text-secondary">The directory is empty.</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.edit-btn').forEach(b=>b.addEventListener('click',()=>{
+  const d=b.dataset, f=document.getElementById('editForm');
+  f.action="{{ url_for('users') }}/"+d.id+"/edit";
+  document.getElementById('editTitle').textContent='Edit '+d.username;
+  editUsername.value=d.username; editEmail.value=d.email; editRole.value=d.role; editPassword.value='';
+  editActive.checked=d.active==='1';
+  const me=d.self==='1'; editRole.disabled=me; editActive.disabled=me; editSelfNote.hidden=!me;
+}));
+</script>
+{% endblock %}

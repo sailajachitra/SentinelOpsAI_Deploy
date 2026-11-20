@@ -1,0 +1,31 @@
+asset_id,asset_name,asset_type,ip_address,criticality,environment
+AST001,HR-HOST-01,Laptop,10.20.0.1,Medium,Testing
+AST002,DB-HOST-02,Workstation,10.20.0.2,Medium,Production
+AST003,FIN-HOST-03,Web Server,10.20.0.3,High,Production
+AST004,FIN-HOST-04,Laptop,10.20.0.4,High,Production
+AST005,DB-HOST-05,Workstation,10.20.0.5,Medium,Development
+AST006,HR-HOST-06,File Server,10.20.0.6,Low,Testing
+AST007,DB-HOST-07,Database Server,10.20.0.7,Medium,Development
+AST008,WEB-HOST-08,Workstation,10.20.0.8,Low,Testing
+AST009,WEB-HOST-09,Server,10.20.0.9,Medium,Development
+AST010,OPS-HOST-10,Laptop,10.20.0.10,High,Testing
+AST011,FIN-HOST-11,Laptop,10.20.0.11,Medium,Development
+AST012,FIN-HOST-12,Workstation,10.20.0.12,Low,Testing
+AST013,WEB-HOST-13,Workstation,10.20.0.13,Medium,Development
+AST014,WEB-HOST-14,Workstation,10.20.0.14,High,Production
+AST015,WEB-HOST-15,File Server,10.20.0.15,Low,Testing
+AST016,DB-HOST-16,Laptop,10.20.0.16,Critical,Production
+AST017,HR-HOST-17,Database Server,10.20.0.17,Medium,Production
+AST018,WEB-HOST-18,Laptop,10.20.0.18,Low,Production
+AST019,WEB-HOST-19,Server,10.20.0.19,Critical,Development
+AST020,ENG-HOST-20,Database Server,10.20.0.20,High,Testing
+AST021,DB-HOST-21,Web Server,10.20.0.21,High,Production
+AST022,HR-HOST-22,Server,10.20.0.22,Medium,Production
+AST023,DB-HOST-23,Web Server,10.20.0.23,Medium,Testing
+AST024,ENG-HOST-24,Laptop,10.20.0.24,Low,Development
+AST025,DB-HOST-25,File Server,10.20.0.25,Low,Testing
+AST026,FIN-HOST-26,Workstation,10.20.0.26,Low,Production
+AST027,OPS-HOST-27,Workstation,10.20.0.27,Medium,Testing
+AST028,HR-HOST-28,File Server,10.20.0.28,Medium,Testing
+AST029,FIN-HOST-29,Database Server,10.20.0.29,High,Testing
+AST030,DB-HOST-30,Server,10.20.0.30,Critical,Production

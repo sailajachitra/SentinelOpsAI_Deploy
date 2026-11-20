@@ -1,0 +1,30 @@
+SENTINELOPS AI - REDESIGN AND ML/COPILOT NOTES
+
+UI
+- Dark SOC layout inspired by the user-provided dashboard references.
+- Dashboard KPI cards and charts are queried from the SQLAlchemy database.
+- Events, alerts, incidents, reports, assets and management links remain available in the sidebar.
+
+AI INVESTIGATION COPILOT
+- Interactive chat is available at /copilot.
+- Browser sends questions to POST /api/copilot.
+- Assistant retrieves event, alert, asset and prediction evidence from SQLAlchemy ORM tables.
+- It recognizes brute force, port scanning, unusual transfer, suspicious privilege and malware-like activity.
+- This is a local rule/evidence assistant, not an external generative LLM. No API key is required.
+- It does not perform response or containment actions.
+
+MACHINE LEARNING
+- Trained artifacts are included under ml/artifacts for immediate new-event inference.
+- ML Reports can retrain and compare Random Forest, Extra Trees and Logistic Regression.
+- Binary detector predicts Benign vs Malicious.
+- A separate family model predicts one of the five attack families for malicious predictions.
+- New unlabelled events are scored; ground-truth labels remain blank.
+- Training metrics are calculated on the held-out split of the supplied synthetic dataset. They are not real-world performance claims.
+
+TROUBLESHOOTING
+1. Activate the same virtual environment used to install requirements.
+2. Run: pip install -r requirements.txt
+3. Run: python app.py
+4. Open http://127.0.0.1:5000
+5. If ML artifacts are deleted, sign in as admin and use ML Model Lab > Train & compare models. The application can also recreate artifacts automatically when scoring a new event.
+6. If MySQL is used, check that the MySQL service is running, database sentinelops_ai exists, and DATABASE_URL in .env uses URL encoding for special password characters (e.g. @ as %40).

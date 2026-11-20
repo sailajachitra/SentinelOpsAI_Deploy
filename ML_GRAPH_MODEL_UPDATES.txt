@@ -1,0 +1,69 @@
+ML MODEL AND GRAPH UPDATES (parameter-based graphs)
+
+Models (only these two)
+- Random Forest
+- XGBoost
+
+ML Model Lab (/reports) now has
+- "Malicious vs Benign (overall detector)" plus the five attack patterns as prediction targets.
+- ROC curve and Precision-Recall curve with BOTH models on the same chart (AUC / average precision in the legend).
+- Parameter scatter plot: choose any two parameters (bytes sent, destination port, failed login count,
+  predicted probability) for the X and Y axes; optional log scales; green = benign, red = malicious,
+  yellow triangles = misclassified; a 0.5 threshold line appears when the Y axis is probability.
+- Parameter importance chart (which input parameters drive the selected model).
+- Model parameters table (hyperparameters of the selected model).
+- Existing confusion matrix, model comparison table and live prediction chart are kept.
+
+Files changed
+- ml/train.py              : adds average precision, parameter importance, hyperparameters, test-set points
+- app.py                   : /reports route (overall target, both-model comparison, labels)
+- templates/reports.html   : new graphs
+- ml/artifacts/*           : retrained with the pinned versions in requirements.txt
+
+An Administrator can click "Retrain both models" (or run: python -m ml.train) at any time
+to regenerate the graphs from data/security_events.csv.
+
+LOGIN PAGE + PATTERN GRAPH GALLERY
+- templates/login.html + static/css/login.css : new split-screen login (hero left, dark curve, white card), show/hide password,
+  remember me, demo-account chips, responsive. To use a photo on the left, save it as static/img/login-bg.jpg (optional).
+- ML Model Lab: new "Attack pattern graphs" gallery (tabs, parameter chips, how-to-read notes, click-to-enlarge, PNG download).
+  Administrators can click "Regenerate" to rebuild the graphs from data/security_events.csv.
+- The model section now shows ONE model at a time (best model for the pattern by default); the Random Forest vs XGBoost table is removed.
+
+
+LIVE PLOTS, DASHBOARD CHARTS AND INCIDENT PIPELINE
+Why the ML plots did not change when you entered an event
+- The six attack-pattern graphs were PNG files drawn once from data/security_events.csv. New events live in the database,
+  so nothing ever redrew them. The dashboard "Five Attack Patterns" chart also ignored new events because it only counted
+  rows that already had a dataset attack_type (events typed into the form have no label, only an ML prediction).
+
+What changed
+- Pattern graphs are now drawn from the LIVE events table. ML Model Lab compares a data signature (event count, scored count,
+  last ingest time) and redraws automatically when it changed. It also re-checks every 10 seconds while the page is open.
+  New ML-scored events appear as GOLD STARS with their event id; a footer shows total events / new events / draw time.
+  (Administrator -> "Regenerate" still forces a redraw.)
+- Events without a ground-truth label use their ML prediction (malicious/benign and attack pattern) everywhere.
+- Simulated columns (connection_count_5min, total_bytes_received, flow_duration_ms, bytes_per_second) are now deterministic
+  per event_id, so adding an event never moves old points. connection_count_5min is never below the REAL number of events
+  seen from the same source IP in the previous 5 minutes.
+- Parameter scatter plot: new events are plotted as gold stars, scored by the SAME model and pattern you selected.
+- Live predictions panel: attack-pattern counts, malicious-probability histogram and latest scored events with the 0.5 line.
+- "Retrain models" now trains on every labelled event in the database (starter + imported CSV rows) instead of only the
+  original CSV. Events typed into the form stay unlabelled, so they are scored but not used for training.
+
+Dashboard (all roles update every 15 seconds; number cards too)
+- Administrator / Analyst: attack patterns (incl. ML-predicted), alert severity, alert workflow, events over time,
+  activity by hour of day, ML score distribution, detection pipeline (events -> malicious -> alerts -> incidents -> resolved),
+  top attacking sources, incident pipeline.
+- Incident Manager: incident pipeline, alert severity, alert workflow, detection pipeline, incident priority.
+
+Incidents = pipeline
+- Stage strip New -> Investigating -> Pending Review -> Contained -> Resolved -> Closed with counts and percentages.
+- Kanban board: Back / Advance buttons (Administrator and Incident Manager), per-incident timeline and details form.
+  Every stage move, update and escalation is written to the incident timeline and the audit log.
+- "Alerts waiting for escalation" lists alerts that have no incident yet (most severe first) with an "Open incident" button;
+  an alert can no longer be escalated twice.
+- "Pending Review" (used by the starter data) is now a real stage; before, saving the old form silently changed it.
+
+Files changed: app.py, ml/train.py, sentinelops_pattern_graphs.py, templates/dashboard.html, templates/incidents.html,
+templates/reports.html, static/css/style.css

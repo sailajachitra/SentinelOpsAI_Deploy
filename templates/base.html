@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SentinelOps AI{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-mark">✦</span><span><b>SentinelOps</b><small>AI SECURITY OPERATIONS</small></span></a>
+    <div class="nav-caption">WORKSPACE</div>
+    <a class="side-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span>▦</span>Dashboard</a>
+    {% if current_user.role in ['Administrator','Analyst'] %}
+      <a class="side-link {% if request.endpoint in ['events','event_new','event_detail'] %}active{% endif %}" href="{{ url_for('events') }}"><span>⌁</span>Logs & Events</a>
+    {% endif %}
+    <a class="side-link {% if request.endpoint == 'alerts' %}active{% endif %}" href="{{ url_for('alerts') }}"><span>⚑</span>Threat Alerts</a>
+    <a class="side-link {% if request.endpoint == 'incidents' %}active{% endif %}" href="{{ url_for('incidents') }}"><span>◈</span>Incidents</a>
+    <a class="side-link {% if request.endpoint == 'copilot' %}active{% endif %}" href="{{ url_for('copilot') }}"><span>✧</span>AI Investigation</a>
+    {% if current_user.role in ['Administrator','Analyst'] %}
+      <a class="side-link {% if request.endpoint == 'reports' %}active{% endif %}" href="{{ url_for('reports') }}"><span>▥</span>ML Model Lab</a>
+    {% endif %}
+    <div class="nav-caption mt-4">MANAGEMENT</div>
+    <a class="side-link {% if request.endpoint == 'assets' %}active{% endif %}" href="{{ url_for('assets') }}"><span>▣</span>Assets</a>
+    {% if current_user.role == 'Administrator' %}
+      <a class="side-link {% if request.endpoint == 'users' %}active{% endif %}" href="{{ url_for('users') }}"><span>♙</span>User Management</a>
+      <a class="side-link {% if request.endpoint == 'audit_logs' %}active{% endif %}" href="{{ url_for('audit_logs') }}"><span>◷</span>Audit Trail</a>
+    {% elif current_user.role == 'Incident Manager' %}
+      <a class="side-link {% if request.endpoint == 'audit_logs' %}active{% endif %}" href="{{ url_for('audit_logs') }}"><span>◷</span>Audit Trail</a>
+    {% endif %}
+    <div class="sidebar-bottom"><div class="profile-chip"><div class="avatar">{{ current_user.username[:1]|upper }}</div><div><b>{{ current_user.username }}</b><small>{{ current_user.role }}</small></div></div><a class="logout-link" href="{{ url_for('auth_logout') }}">↪ Sign out</a></div>
+  </aside>
+  <main class="main-area"><header class="topbar"><div><span class="live-dot"></span> SOC WORKSPACE <span class="topbar-divider">/</span> {{ current_user.role }}</div><div class="topbar-right"><span>● System online</span><span class="top-avatar">{{ current_user.username[:1]|upper }}</span></div></header>
+{% else %}<main class="login-area">{% endif %}
+  <div class="page-content">
+  {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category,message in messages %}<div class="alert alert-{{ category }} alert-dismissible fade show">{{ message }}<button class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}{% endif %}{% endwith %}
+  {% block content %}{% endblock %}
+  </div>
+{% if current_user.is_authenticated %}</main></div>{% else %}</main>{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body></html>

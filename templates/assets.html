@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Assets · SentinelOps AI{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">INVENTORY</div><h1>Asset Inventory</h1>
+<p>{% if can_manage %}Add or remove assets. Removing an asset keeps its events; only the link is cleared.{% else %}Systems that security events refer to.{% endif %}</p></div><span class="panel-tag">{{ items|length }} ASSETS</span></div>
+{% if can_manage %}
+<section class="panel mb-3">
+<form method="post" action="{{ url_for('asset_add') }}" class="row g-2 align-items-end">
+  <div class="col-md-2"><label class="form-label" for="aId">Asset ID</label><input class="form-control" id="aId" name="asset_id" placeholder="{{ suggested_asset_id }}" maxlength="20"></div>
+  <div class="col-md-3"><label class="form-label" for="aName">Name</label><input class="form-control" id="aName" name="asset_name" required maxlength="100" placeholder="WEB-HOST-31"></div>
+  <div class="col-md-2"><label class="form-label" for="aType">Type</label><input class="form-control" id="aType" name="asset_type" list="typeList" required maxlength="80"><datalist id="typeList">{% for t in asset_types %}<option value="{{ t }}">{% endfor %}</datalist></div>
+  <div class="col-md-2"><label class="form-label" for="aIp">IP address</label><input class="form-control" id="aIp" name="ip_address" required placeholder="10.20.0.31"></div>
+  <div class="col-md-1"><label class="form-label" for="aCrit">Criticality</label><select class="form-select" id="aCrit" name="criticality">{% for c in criticality_levels %}<option {% if c=='Medium' %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+  <div class="col-md-2"><label class="form-label" for="aEnv">Environment</label><input class="form-control" id="aEnv" name="environment" list="envList" required maxlength="50" value="Production"><datalist id="envList">{% for e in environments %}<option value="{{ e }}">{% endfor %}</datalist></div>
+  <div class="col-12 d-flex align-items-center gap-3"><button class="btn btn-primary">＋ Add asset</button><small class="text-secondary">Leave Asset ID empty to use the next free one ({{ suggested_asset_id }}).</small></div>
+</form></section>
+{% endif %}
+<div class="panel table-responsive"><table class="table align-middle"><thead><tr><th>Asset ID</th><th>Name</th><th>Type</th><th>IP</th><th>Criticality</th><th>Environment</th><th>Events</th>{% if can_manage %}<th class="text-end">Action</th>{% endif %}</tr></thead><tbody>
+{% for a in items %}{% set n = event_counts.get(a.asset_id, 0) %}<tr><td>{{ a.asset_id }}</td><td>{{ a.asset_name }}</td><td>{{ a.asset_type }}</td><td>{{ a.ip_address }}</td><td>{{ a.criticality }}</td><td>{{ a.environment }}</td><td>{{ n }}</td>
+{% if can_manage %}<td class="text-end"><form method="post" action="{{ url_for('asset_delete', asset_id=a.asset_id) }}" class="d-inline" onsubmit='return confirm({{ ("Remove asset " ~ a.asset_id ~ " (" ~ a.asset_name ~ ")? " ~ n ~ " event(s) will be kept but detached from this asset.")|tojson }})'><button class="btn btn-sm btn-outline-danger">Remove</button></form></td>{% endif %}</tr>
+{% else %}<tr><td colspan="8" class="text-secondary">No assets.</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

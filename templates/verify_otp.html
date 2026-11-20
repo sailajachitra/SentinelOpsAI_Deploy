@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ 'Reset password' if reset else ('Create account' if signup else 'Verify') }} · SentinelOps AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/login.css') }}" rel="stylesheet">
+</head>
+<body class="login-page">
+<div class="stage">
+  <section class="hero"><div class="hero-brand"><span class="mark">✦</span><span><b>SentinelOps</b><small>AI SECURITY OPERATIONS</small></span></div></section>
+  <svg class="curve" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M80 0 C 71 22, 58 58, 53 100 L100 100 L100 0 Z"/></svg>
+  <main class="card-wrap">
+    <div class="card">
+      <h1>{{ 'Verify your email' if (reset or signup) else 'Check your email' }}</h1>
+      <p class="lead">{% if signup %}Enter the {{ config.OTP_LENGTH }}-digit code sent to <b>{{ masked }}</b> to finish creating your account.{% elif reset %}Enter the {{ config.OTP_LENGTH }}-digit code sent to <b>{{ masked }}</b> to reset your password.{% else %}We sent a {{ config.OTP_LENGTH }}-digit code to <b>{{ masked }}</b>.{% endif %}<br>It expires in {{ ttl_minutes }} minutes.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}
+      <div class="flash {{ category }}" role="alert">{{ message }}</div>{% endfor %}{% endwith %}
+      <form method="post" action="{{ url_for('auth_signup_verify' if signup else ('auth_forgot_verify' if reset else 'auth_verify')) }}" novalidate>
+        <label for="code">Verification code<span>*</span></label>
+        <input id="code" class="otp" name="code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="{{ config.OTP_LENGTH }}" autocomplete="one-time-code" placeholder="••••••" required autofocus>
+        <button class="submit" type="submit">{{ 'Verify code' if reset else ('Verify & create account' if signup else 'Verify & Log In') }}</button>
+      </form>
+      <form method="post" action="{{ url_for('auth_signup_resend' if signup else ('auth_forgot_resend' if reset else 'auth_resend')) }}" class="resend">
+        <span>Didn’t get it?</span>
+        <button class="linkbtn" id="resend" type="submit" {% if wait %}disabled{% endif %}>Resend code{% if wait %} (<span id="cd">{{ wait }}</span>s){% endif %}</button>
+      </form>
+      <a class="back" href="{{ url_for('auth_signup' if signup else 'auth_login') }}">← {{ 'Back to sign up' if signup else 'Back to sign in' }}</a>
+    </div>
+  </main>
+</div>
+<script>
+let left={{ wait|int }};const cd=document.getElementById('cd'),btn=document.getElementById('resend');
+if(left>0){const t=setInterval(()=>{left--;if(left<=0){clearInterval(t);btn.disabled=false;btn.textContent='Resend code';}else cd.textContent=left;},1000);}
+</script>
+</body></html>

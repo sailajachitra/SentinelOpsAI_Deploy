@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Incident Pipeline · SentinelOps AI{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">INCIDENT RESPONSE PIPELINE</div><h1>Incident Management</h1>
+<p>Every incident moves left to right: New → Investigating → Pending Review → Contained → Resolved → Closed. Alerts enter the pipeline when they are escalated.</p></div>
+<div class="heading-actions"><span class="panel-tag">{{ items|length }} INCIDENTS</span><a class="btn btn-outline-primary btn-sm" href="{{ url_for('alerts') }}">Threat alerts →</a></div></div>
+
+{# ---------- stage strip ---------- #}
+{% set total = items|length or 1 %}
+<div class="pipe-strip" role="list">
+{% for st in stages %}
+<div class="pipe-step ps-{{ loop.index }}" role="listitem"><span class="pipe-name">{{ st }}</span><b>{{ counts[st] }}</b>
+<small>{{ ((counts[st] / total) * 100)|round|int }}% of incidents</small><i style="width:{{ ((counts[st] / total) * 100)|round|int }}%"></i></div>
+{% endfor %}
+</div>
+
+{# ---------- charts + alerts waiting ---------- #}
+<div class="dashboard-grid grid-3 mt-3">
+<section class="panel chart-panel"><div class="panel-heading"><div><h2>Detection → response pipeline</h2><p>How many events reach each step</p></div><span class="panel-tag">PIPELINE</span></div><div class="chart-wrap tall-chart"><canvas id="pipeFunnel"></canvas></div></section>
+<section class="panel chart-panel"><div class="panel-heading"><div><h2>Incident priority</h2><p>Incidents by priority</p></div></div><div class="chart-wrap tall-chart doughnut-wrap"><canvas id="pipePriority"></canvas></div></section>
+<section class="panel"><div class="panel-heading"><div><h2>Alerts waiting for escalation</h2><p>{{ waiting_total }} alert{{ '' if waiting_total == 1 else 's' }} without an incident, most severe first</p></div></div>
+<div class="table-responsive"><table class="table soc-table"><tbody>
+{% for a in waiting %}<tr><td><b>{{ a.alert_id }}</b><div class="small text-secondary">{{ a.alert_title }}</div></td><td><span class="prio p-{{ (a.severity or '')|lower }}">{{ a.severity }}</span></td>
+<td class="text-end"><form method="post" action="{{ url_for('incident_create', alert_id=a.alert_id) }}"><button class="btn btn-sm btn-outline-primary">Open incident</button></form></td></tr>
+{% else %}<tr><td class="empty-state">Every open alert already has an incident.</td></tr>{% endfor %}
+</tbody></table></div></section>
+</div>
+
+{# ---------- kanban board ---------- #}
+<div class="kanban">
+{% for st in stages %}
+<section class="k-col kc-{{ loop.index }}"><header><span>{{ st }}</span><b>{{ counts[st] }}</b></header>
+{% for i in board[st] %}
+<article class="k-card" id="{{ i.incident_id }}">
+<div class="k-top"><code>{{ i.incident_id }}</code><span class="prio p-{{ (i.priority or '')|lower }}">{{ i.priority }}</span></div>
+<p class="k-title">{{ i.incident_title }}</p>
+<div class="k-meta">Alert {{ i.related_alert_id or '—' }}{% if i.assigned_to %} · {{ i.assigned_to }}{% endif %}</div>
+{% if can_edit %}<div class="k-actions">
+<form method="post" action="{{ url_for('incident_stage', incident_id=i.incident_id) }}"><input type="hidden" name="direction" value="back"><button class="btn btn-sm btn-outline-secondary" {% if st == stages[0] %}disabled{% endif %} title="Move back one stage">◀ Back</button></form>
+<form method="post" action="{{ url_for('incident_stage', incident_id=i.incident_id) }}"><input type="hidden" name="direction" value="next"><button class="btn btn-sm btn-primary" {% if st == stages[-1] %}disabled{% endif %} title="Advance to the next stage">Advance ▶</button></form>
+</div>{% endif %}
+<details class="k-more"><summary>Timeline{% if can_edit %} &amp; details{% endif %}</summary>
+<ul class="k-timeline">{% for t in timelines.get(i.incident_id, []) %}<li><b>{{ t.action }}</b><span>{{ t.performed_by }} · {{ t.created_at.strftime('%d %b %H:%M') }}</span></li>{% else %}<li><span>No timeline entries yet.</span></li>{% endfor %}</ul>
+{% if can_edit %}<form method="post" action="{{ url_for('incident_update', incident_id=i.incident_id) }}">
+<label class="form-label small">Stage</label><select name="status" class="form-select form-select-sm mb-2">{% for s in stages %}<option {% if st == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+<label class="form-label small">Root cause</label><textarea name="root_cause" class="form-control form-control-sm mb-2" rows="2">{{ i.root_cause or '' }}</textarea>
+<label class="form-label small">Resolution notes</label><textarea name="resolution_notes" class="form-control form-control-sm mb-2" rows="2">{{ i.resolution_notes or '' }}</textarea>
+<button class="btn btn-primary btn-sm">Save details</button></form>
+{% else %}<p class="small text-secondary mb-0">Root cause: {{ i.root_cause or 'not recorded' }}</p>{% endif %}
+</details></article>
+{% else %}<div class="k-empty">No incidents</div>{% endfor %}
+</section>
+{% endfor %}
+</div>
+{% if not can_edit %}<p class="small text-secondary mt-3">Analysts can open incidents from alerts. Moving incidents along the pipeline is done by Incident Managers and Administrators.</p>{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+const t='#566170', g='rgba(80,92,108,.14)';
+const F={{ funnel|tojson }}, P={{ priority|tojson }};
+new Chart(document.getElementById('pipeFunnel'),{type:'bar',data:{labels:F.labels,datasets:[{data:F.values,backgroundColor:['#5a8fc4','#d95b6a','#e09b45','#8a7fcf','#4aa98c'],borderRadius:6}]},
+ options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{color:t},grid:{color:g}},y:{ticks:{color:t},grid:{display:false}}}}});
+new Chart(document.getElementById('pipePriority'),{type:'doughnut',data:{labels:P.labels,datasets:[{data:P.values,backgroundColor:['#d95b6a','#e09b45','#d6b653','#4aa98c','#94a0b0'],borderWidth:0}]},
+ options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:t}}}}});
+</script>
+{% endblock %}

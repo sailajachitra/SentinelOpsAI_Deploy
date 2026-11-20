@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}New event · SentinelOps AI{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">INGEST</div><h1>Add and score a new event</h1>
+<p>The event is scored by the models, <b>added to the dataset (data/security_events.csv)</b>, and the models retrain in the background so ML Model Lab, the pattern graphs and the Dashboard change. The ground-truth label stays blank until an analyst confirms it on the event page.</p></div></div>
+<div class="panel"><form method="post" class="row g-3">
+{% macro field(name, label, typ, default) %}<div class="col-md-4"><label class="form-label" for="f_{{ name }}">{{ label }}</label><input class="form-control" id="f_{{ name }}" name="{{ name }}" type="{{ typ }}" value="{{ form.get(name, default) }}" required {% if typ == 'number' %}min="0"{% endif %}></div>{% endmacro %}
+{{ field('event_id', 'Event ID', 'text', suggested_id) }}
+{{ field('event_time', 'Event time (dd-mm-yyyy hh:mm)', 'text', suggested_time) }}
+{{ field('src_ip', 'Source IP', 'text', '10.20.2.15') }}
+{{ field('dst_ip', 'Destination IP', 'text', '10.20.0.22') }}
+<div class="col-md-4"><label class="form-label" for="f_event_type">Event type</label><input class="form-control" id="f_event_type" name="event_type" list="typeList" value="{{ form.get('event_type', 'login_failure') }}" required><datalist id="typeList">{% for t in ['login_failure','login_success','privilege_change','data_transfer','process_execution','network_connection','file_access','dns_query'] %}<option value="{{ t }}">{% endfor %}</datalist></div>
+<div class="col-md-4"><label class="form-label" for="f_protocol">Protocol</label><input class="form-control" id="f_protocol" name="protocol" list="protoList" value="{{ form.get('protocol', 'TCP') }}" required><datalist id="protoList"><option value="TCP"><option value="UDP"></datalist></div>
+{{ field('dst_port', 'Destination port', 'number', 443) }}
+{{ field('failed_login_count', 'Failed login count', 'number', 0) }}
+{{ field('bytes_sent', 'Bytes sent', 'number', 1000) }}
+<div class="col-md-4"><label class="form-label" for="f_user">User</label><select class="form-select" id="f_user" name="user_id"><option value="">Unknown</option>{% for u in users %}<option value="{{ u.user_id }}" {% if form.get('user_id') == u.user_id %}selected{% endif %}>{{ u.user_id }} · {{ u.username }}</option>{% endfor %}</select></div>
+<div class="col-md-4"><label class="form-label" for="f_asset">Asset</label><select class="form-select" id="f_asset" name="asset_id"><option value="">Unknown</option>{% for a in assets %}<option value="{{ a.asset_id }}" {% if form.get('asset_id') == a.asset_id %}selected{% endif %}>{{ a.asset_id }} · {{ a.asset_name }}</option>{% endfor %}</select></div>
+<div class="col-md-4"><label class="form-label" for="f_sev">Severity hint</label><select class="form-select" id="f_sev" name="severity_hint">{% for sv in ['Low','Medium','High','Critical'] %}<option {% if form.get('severity_hint', 'Medium') == sv %}selected{% endif %}>{{ sv }}</option>{% endfor %}</select></div>
+<div class="col-12"><button class="btn btn-primary">Predict and save event</button> <a class="btn btn-outline-secondary" href="{{ url_for('events') }}">Cancel</a></div></form></div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}{% block content %}<a href="{{ url_for('events') }}">← Events</a><h2 class="fw-bold mt-2">{{ event.event_id }}</h2>
+<div class="row g-3"><div class="col-lg-8"><div class="panel"><h5>Event evidence</h5><dl class="row">
+{% for label,value in [('Time',event.event_time),('User ID',event.user_id),('Asset ID',event.asset_id),('Source IP',event.src_ip),('Destination IP',event.dst_ip),('Event type',event.event_type),('Protocol',event.protocol),('Destination port',event.dst_port),('Failed logins',event.failed_login_count),('Bytes sent',event.bytes_sent),('Severity hint',event.severity_hint),('Ground-truth label',event.label),('Ground-truth attack type',event.attack_type)] %}
+<dt class="col-sm-4">{{ label }}</dt><dd class="col-sm-8">{{ value or '—' }}</dd>{% endfor %}</dl></div></div>
+<div class="col-lg-4"><div class="panel"><h5>ML result</h5><div class="display-6">{{ event.predicted_label or 'Not scored' }}</div><p>Malicious probability: {{ '%.1f'|format((event.model_score or 0)*100) }}%</p><p>Predicted attack family: {{ event.predicted_attack_type or '—' }}</p><small class="text-secondary">Prediction is not ground truth. Analyst validation is required.</small></div>
+{% if not event.label %}<div class="panel mt-3"><h5>Confirm the real outcome</h5>
+<p class="small text-secondary">This event has no ground-truth label yet. Once you confirm it, the dataset file is updated and the models retrain using it as real training data.</p>
+<form method="post" action="{{ url_for('event_label', event_id=event.event_id) }}" class="d-grid gap-2">
+<select class="form-select" name="label" id="lblSelect" required><option value="">Choose…</option><option>Benign</option><option>Malicious</option></select>
+<select class="form-select" name="attack_type" id="lblAttack" disabled><option value="">Attack pattern…</option>{% for p in patterns %}<option value="{{ p }}" {% if event.predicted_attack_type == p %}selected{% endif %}>{{ p|replace('_',' ')|title }}</option>{% endfor %}</select>
+<button class="btn btn-primary">Save label</button></form>
+<script>(function(){var l=document.getElementById('lblSelect'),a=document.getElementById('lblAttack');l.addEventListener('change',function(){var m=l.value==='Malicious';a.disabled=!m;a.required=m;});})();</script></div>{% endif %}
+<div class="panel mt-3"><h5>Related alerts</h5>{% for a in related_alerts %}<p><a href="{{ url_for('alerts') }}">{{ a.alert_id }}</a> · {{ a.severity }} · {{ a.status }}</p>{% else %}<p class="text-secondary">No related alerts.</p>{% endfor %}</div></div></div>{% endblock %}

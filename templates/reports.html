@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% block title %}ML Model Lab · SentinelOps AI{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">PARAMETER-BASED MODEL ANALYSIS</div><h1>ML Model Lab</h1><p>Graphs and curves built from each attack pattern's parameters. One model is shown at a time.</p></div>
+{% if current_user.role=='Administrator' %}<form method="post" action="{{ url_for('model_train') }}"><button class="btn btn-primary">⟳ Retrain models</button></form>{% endif %}</div>
+<section class="panel gallery" id="gallery">
+<div class="panel-heading"><div><h2>Attack pattern graphs</h2><p>One graph per attack pattern, drawn from the parameters that define it. Pick a pattern, click a graph to enlarge it.</p></div>
+<div class="d-flex gap-2 align-items-center"><span class="panel-tag">{{ gallery|length }} GRAPHS</span>{% if current_user.role=='Administrator' %}<form method="post" action="{{ url_for('graphs_regenerate') }}"><button class="btn btn-sm btn-outline-primary">⟳ Regenerate</button></form>{% endif %}</div></div>
+<div class="g-status" id="gStatus"><span class="live-dot"></span><span id="gStatusText">{{ graph_meta.total }} events · {{ graph_meta.new_events }} new ML-scored (gold stars) · graphs updated {{ graph_meta.updated }}</span><small>The graphs are redrawn from the live database whenever an event is added or imported.</small></div>
+<div class="g-tabs" role="tablist">{% for g in gallery %}<button type="button" role="tab" class="g-tab {% if g.key==gallery_default %}active{% endif %}" data-target="g-{{ g.key }}"><i class="g-dot g-{{ loop.index }}"></i>{{ g.tab }}</button>{% endfor %}</div>
+{% for g in gallery %}
+<div class="g-pane {% if g.key==gallery_default %}active{% endif %}" id="g-{{ g.key }}" role="tabpanel">
+<div class="g-grid">
+<figure class="g-figure">{% if g.exists %}<div class="g-frame"><img loading="lazy" src="{{ url_for('graph_image', name=g.file) }}?v={{ g.version }}" data-base="{{ url_for('graph_image', name=g.file) }}" data-file="{{ g.file }}" alt="{{ g.title }}" data-zoom></div>
+<figcaption><span>🔍 Click the graph to enlarge</span><a href="{{ url_for('graph_image', name=g.file) }}?v={{ g.version }}" data-base="{{ url_for('graph_image', name=g.file) }}" data-file="{{ g.file }}" download="{{ g.file }}">⬇ Download PNG</a></figcaption>
+{% else %}<div class="g-missing">This graph has not been generated yet.{% if current_user.role=='Administrator' %} Click <b>Regenerate</b> above.{% else %} Ask an Administrator to regenerate the graphs.{% endif %}</div>{% endif %}</figure>
+<aside class="g-side"><h3>{{ g.title }}</h3>
+<div class="g-label">PARAMETERS USED</div><div class="g-chips">{% for prm in g.parameters %}<span>{{ prm }}</span>{% endfor %}</div>
+<div class="g-label">WHAT YOU ARE SEEING</div><p>{{ g.shows }}</p>
+<div class="g-tip"><b>How to read it</b>{{ g.tip }}</div></aside>
+</div></div>
+{% endfor %}
+<div class="lightbox" id="lightbox" hidden><button type="button" class="lb-close" aria-label="Close">×</button><img alt=""><div class="lb-cap"></div></div>
+</section>
+
+<div class="role-banner" id="trainBanner"><span class="live-dot"></span><b id="trainTitle">{% if train_status.running %}Retraining models…{% else %}Models are up to date{% endif %}</b>&ensp;<span id="trainText">{% if evaluation %}Last trained {{ (evaluation.trained_at or 'before this feature was added')|replace('T',' ') }} on {{ evaluation.dataset_rows }} labelled events{% if evaluation.provisional_rows %} + {{ evaluation.provisional_rows }} new events (predicted labels){% endif %}. Every new event, CSV import or confirmed label retrains them automatically and this page refreshes.{% else %}No models trained yet.{% endif %}</span>{% if train_status.error %}<div class="text-danger small mt-1">Last training failed: {{ train_status.error }}</div>{% endif %}</div>
+{% if evaluation %}
+<div class="role-banner"><b>Model evaluation available</b>&ensp;<span>{{ evaluation.dataset_rows }} labelled rows · {{ evaluation.test_size }} held-out test rows (ground truth only) · retraining is automatic; the Administrator can also force it.</span></div>
+<div class="panel mb-3"><div class="panel-heading"><div><h2>Choose your analysis</h2><p>The pattern selects what is predicted. The model that performed best for that pattern is used unless you pick the other one.</p></div><span class="panel-tag">PARAMETER-BASED</span></div>
+<form method="get" action="{{ url_for('reports') }}" class="row g-3 align-items-end p-3 pt-0">
+<div class="col-md-5"><label class="form-label" for="pattern">Prediction target</label><select class="form-select" name="pattern" id="pattern">{% for p in patterns %}<option value="{{ p }}" {% if p==selected_pattern %}selected{% endif %}>{{ 'Malicious vs Benign (overall detector)' if p=='overall' else p|replace('_',' ')|title }}</option>{% endfor %}</select></div>
+<div class="col-md-5"><label class="form-label" for="model">Model</label><select class="form-select" name="model" id="model">{% for m in model_names %}<option value="{{ m }}" {% if m==selected_model %}selected{% endif %}>{{ m }}{% if m==best_model %} (best for this pattern){% endif %}</option>{% endfor %}</select></div>
+<div class="col-md-2"><button class="btn btn-primary w-100">Show graphs</button></div></form></div>
+{% if selected_result and selected_result.test_points is defined %}
+<div class="metric-grid mt-3">
+{% for metric in selected_metrics %}<div class="metric-card"><div class="metric-top">{{ metric.label }}</div><div class="metric-number">{{ '%.3f'|format(metric.value) }}</div><div class="metric-foot">{{ selected_model }} · {{ pattern_title }}</div></div>{% endfor %}
+</div>
+<div class="role-banner mt-3"><b>Most influential parameters ({{ selected_model }})</b>&ensp;<span>{{ selected_signals|join(' · ')|replace('_',' ') }}</span></div>
+
+<div class="row g-3 mt-1">
+<div class="col-lg-6"><section class="panel chart-panel h-100"><div class="panel-heading"><div><h2>ROC curve ({{ selected_model }})</h2><p>True positive rate against false positive rate for {{ pattern_title }}</p></div></div><div class="chart-wrap tall-chart"><canvas id="rocChart"></canvas></div></section></div>
+<div class="col-lg-6"><section class="panel chart-panel h-100"><div class="panel-heading"><div><h2>Precision–Recall curve ({{ selected_model }})</h2><p>Precision against recall across probability thresholds</p></div></div><div class="chart-wrap tall-chart"><canvas id="prChart"></canvas></div></section></div>
+</div>
+
+<section class="panel chart-panel mt-3 mb-3">
+<div class="panel-heading"><div><h2>Parameter scatter plot ({{ selected_model }})</h2><p>Each dot is one held-out test event. Pick any two parameters; triangles are events the model got wrong. Gold stars are new events you entered, scored by this same model.</p></div><span class="panel-tag">{{ selected_result.test_points|length }} TEST EVENTS · {{ live_points|length }} NEW</span></div>
+<div class="row g-3 align-items-end px-3 pb-2">
+<div class="col-md-3"><label class="form-label" for="axisX">X axis parameter</label><select class="form-select" id="axisX"></select></div>
+<div class="col-md-3"><label class="form-label" for="axisY">Y axis parameter</label><select class="form-select" id="axisY"></select></div>
+<div class="col-md-6 d-flex flex-wrap gap-4 align-items-center pb-2">
+<div class="form-check"><input class="form-check-input" type="checkbox" id="logX" checked><label class="form-check-label" for="logX">Log scale X</label></div>
+<div class="form-check"><input class="form-check-input" type="checkbox" id="logY"><label class="form-check-label" for="logY">Log scale Y</label></div>
+<div class="form-check"><input class="form-check-input" type="checkbox" id="jitter" checked><label class="form-check-label" for="jitter">Spread failed-login counts</label></div></div></div>
+<div class="chart-wrap" style="height:380px"><canvas id="paramScatter"></canvas></div>
+<p class="small text-secondary mt-2 mb-0" id="scatterHint"></p></section>
+
+<div class="row g-3 mb-3">
+<div class="col-lg-6"><section class="panel chart-panel h-100"><div class="panel-heading"><div><h2>Parameter importance ({{ selected_model }})</h2><p>How much each input parameter drives the prediction (sums to 100%)</p></div></div><div class="chart-wrap tall-chart"><canvas id="importanceChart"></canvas></div></section></div>
+<div class="col-lg-6"><section class="panel h-100"><div class="panel-heading"><div><h2>Model parameters ({{ selected_model }})</h2><p>Hyperparameters used when this model was trained</p></div></div>
+<table class="table soc-table"><thead><tr><th>PARAMETER</th><th>VALUE</th></tr></thead><tbody>{% for k, v in selected_result.hyperparameters.items() %}<tr><td><code>{{ k }}</code></td><td>{{ v }}</td></tr>{% endfor %}<tr><td><code>input parameters</code></td><td>{{ evaluation.features|join(', ') }}</td></tr></tbody></table></section></div>
+</div>
+
+<div class="panel mb-3"><div class="panel-heading"><div><h2>Confusion matrix ({{ selected_model }})</h2><p>Rows are actual labels; columns are model predictions (threshold 0.5).</p></div></div><div class="matrix-wrap"><table class="matrix"><tr><th>Actual \ Predicted</th><th>Not {{ pattern_title }}</th><th>{{ pattern_title }}</th></tr><tr><th>Not {{ pattern_title }}</th><td>{{ selected_result.confusion_matrix[0][0] }}</td><td>{{ selected_result.confusion_matrix[0][1] }}</td></tr><tr><th>{{ pattern_title }}</th><td>{{ selected_result.confusion_matrix[1][0] }}</td><td>{{ selected_result.confusion_matrix[1][1] }}</td></tr></table></div></div>
+
+{% elif selected_result %}
+<div class="alert alert-warning">This evaluation file was created before the parameter graphs were added. An Administrator must click <b>Retrain models</b> once.</div>
+{% endif %}
+
+<div class="panel mb-3"><div class="panel-heading"><div><h2>Live event predictions</h2><p>These charts update when a new event is saved and scored. They show current predictions, not test-set accuracy.</p></div><span class="panel-tag">LIVE DATA</span></div>
+<div class="metric-grid"><div class="metric-card"><div class="metric-top">Total events</div><div class="metric-number" id="liveTotal">{{ live_stats.total_events }}</div></div><div class="metric-card"><div class="metric-top">Predicted malicious</div><div class="metric-number" id="liveMalicious">{{ live_stats.predicted_malicious }}</div></div><div class="metric-card"><div class="metric-top">Predicted benign</div><div class="metric-number" id="liveBenign">{{ live_stats.predicted_benign }}</div></div></div>
+<div class="row g-3"><div class="col-lg-4"><div class="small text-secondary mb-1">Predicted attack pattern</div><div class="chart-wrap tall-chart"><canvas id="livePatterns"></canvas></div></div>
+<div class="col-lg-4"><div class="small text-secondary mb-1">Malicious-probability distribution (all scored events)</div><div class="chart-wrap tall-chart"><canvas id="liveScores"></canvas></div></div>
+<div class="col-lg-4"><div class="small text-secondary mb-1">Latest scored events (dashed line = 0.5 threshold)</div><div class="chart-wrap tall-chart"><canvas id="liveRecent"></canvas></div></div></div></div>
+{% else %}<div class="alert alert-warning">No model evaluation is available yet. An Administrator must train the models.</div>{% endif %}
+<p class="small text-secondary mt-3">The supplied starter dataset is synthetic. Evaluation scores describe only its held-out test split and should not be treated as real-world SOC performance.</p>
+{% endblock %}
+{% block scripts %}
+<script>
+const textColor='#566170', gridColor='rgba(80,92,108,.14)';
+/* ---------- pattern graph gallery ---------- */
+(function(){
+  const tabs=[...document.querySelectorAll('.g-tab')], panes=[...document.querySelectorAll('.g-pane')];
+  function show(id){tabs.forEach(b=>{const on=b.dataset.target===id;b.classList.toggle('active',on);b.setAttribute('aria-selected',on);});panes.forEach(p=>p.classList.toggle('active',p.id===id));}
+  tabs.forEach(b=>b.addEventListener('click',()=>show(b.dataset.target)));
+  const lb=document.getElementById('lightbox'); if(!lb)return; const lbImg=lb.querySelector('img'), cap=lb.querySelector('.lb-cap');
+  function close(){lb.hidden=true;document.body.style.overflow='';}
+  document.querySelectorAll('img[data-zoom]').forEach(img=>img.addEventListener('click',()=>{lbImg.src=img.src;lbImg.alt=img.alt;cap.textContent=img.alt;lb.hidden=false;document.body.style.overflow='hidden';}));
+  lb.addEventListener('click',e=>{if(e.target!==lbImg)close();});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&!lb.hidden)close();
+    if((e.key==='ArrowRight'||e.key==='ArrowLeft')&&lb.hidden&&document.activeElement&&document.activeElement.classList.contains('g-tab')){
+      const i=tabs.findIndex(b=>b===document.activeElement), n=(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length; tabs[n].focus(); show(tabs[n].dataset.target);}
+  });
+})();
+
+const MODEL_COLORS={'Random Forest':'#5a8fc4','XGBoost':'#e09b45'};
+{% if selected_result and selected_result.test_points is defined %}
+const MODELS={{ compare|tojson }};
+const SELECTED={{ selected_model|tojson }};
+const TARGET={{ pattern_title|tojson }};
+const IMPORTANCE={{ selected_result.parameter_importance|tojson }};
+const LABELS={dst_port:'Destination port',failed_login_count:'Failed login count',bytes_sent:'Bytes sent',probability:'Predicted probability of '+TARGET.toLowerCase()};
+const LOGGABLE={dst_port:true,bytes_sent:true,failed_login_count:false,probability:false};
+
+function axisTitle(text){return {display:true,text,color:textColor};}
+function curveChart(canvasId,key,xText,yText,baseline,metricKey,metricName,color){
+  const m=MODELS.find(x=>x.model===SELECTED);
+  const datasets=[{label:SELECTED+' ('+metricName+' '+(m[metricKey]??0).toFixed(3)+')',data:m[key],borderColor:color,backgroundColor:color+'2e',fill:!baseline,
+    pointRadius:0,borderWidth:3.5,parsing:false}];
+  if(baseline)datasets.push({label:'Random guess',data:[{x:0,y:0},{x:1,y:1}],borderColor:'#7b8697',borderDash:[3,5],pointRadius:0,borderWidth:1.5,parsing:false});
+  new Chart(document.getElementById(canvasId),{type:'line',data:{datasets},options:{responsive:true,maintainAspectRatio:false,parsing:false,
+    plugins:{legend:{labels:{color:textColor,usePointStyle:true}},tooltip:{callbacks:{label:c=>yText+' '+c.parsed.y.toFixed(3)+' at '+xText+' '+c.parsed.x.toFixed(3)}}},
+    scales:{x:{type:'linear',min:0,max:1,title:axisTitle(xText),ticks:{color:textColor},grid:{color:gridColor}},y:{min:0,max:1.02,title:axisTitle(yText),ticks:{color:textColor},grid:{color:gridColor}}}}});
+}
+curveChart('rocChart','roc_curve','False positive rate','True positive rate',true,'roc_auc','AUC','#4aa98c');
+curveChart('prChart','pr_curve','Recall','Precision',false,'average_precision','AP','#5a8fc4');
+
+const selectedModel=MODELS.find(m=>m.model===SELECTED);
+const POINTS=selectedModel.test_points;
+const LIVE_POINTS={{ live_points|tojson }};
+const axisX=document.getElementById('axisX'), axisY=document.getElementById('axisY');
+['bytes_sent','dst_port','failed_login_count','probability'].forEach(k=>{axisX.add(new Option(LABELS[k].replace(/ of .*/,''),k));axisY.add(new Option(LABELS[k].replace(/ of .*/,''),k));});
+const topNumeric=IMPORTANCE.map(i=>i.parameter).find(p=>LOGGABLE.hasOwnProperty(p)&&p!=='probability')||'bytes_sent';
+axisX.value=topNumeric; axisY.value='probability';
+let scatterChart;
+function jitterOf(i){const v=Math.sin((i+1)*12.9898)*43758.5453;return v-Math.floor(v);}
+function buildScatter(){
+  const xk=axisX.value, yk=axisY.value;
+  const logX=document.getElementById('logX'), logY=document.getElementById('logY'), jit=document.getElementById('jitter').checked;
+  logX.disabled=!LOGGABLE[xk]; logY.disabled=!LOGGABLE[yk];
+  const useLogX=logX.checked&&!logX.disabled, useLogY=logY.checked&&!logY.disabled;
+  const val=(p,k,i)=>{let v=p[k]; if(k==='failed_login_count'&&jit)v+=jitterOf(i)*.7; return v;};
+  const groups={neg:[],pos:[],bad:[]};
+  POINTS.forEach((p,i)=>{const pt={x:val(p,xk,i),y:val(p,yk,i+500),raw:p};(p.actual!==p.predicted?groups.bad:(p.actual===1?groups.pos:groups.neg)).push(pt);});
+  const xs=POINTS.map(p=>p[xk]), minX=Math.min(...xs), maxX=Math.max(...xs);
+  const datasets=[
+    {label:'Not '+TARGET+' (correct)',data:groups.neg,backgroundColor:'rgba(67,199,162,.65)',pointRadius:4},
+    {label:TARGET+' (correct)',data:groups.pos,backgroundColor:'rgba(240,92,114,.8)',pointRadius:4.5},
+    {label:'Misclassified',data:groups.bad,backgroundColor:'#e3b72a',borderColor:'#ffffff',pointStyle:'triangle',pointRadius:8,pointHoverRadius:10}];
+  if(LIVE_POINTS.length)datasets.push({label:'New events (live, '+LIVE_POINTS.length+')',data:LIVE_POINTS.map(p=>({x:p[xk],y:p[yk],raw:p})),backgroundColor:'#e3a21a',borderColor:'#000',borderWidth:1.2,pointStyle:'star',pointRadius:12,pointHoverRadius:14});
+  if(yk==='probability')datasets.push({type:'line',label:'Decision threshold 0.5',data:[{x:(useLogX&&minX<=0)?1:minX,y:.5},{x:maxX,y:.5}],borderColor:'#7b8697',borderDash:[6,4],pointRadius:0,borderWidth:1.5});
+  if(scatterChart)scatterChart.destroy();
+  scatterChart=new Chart(document.getElementById('paramScatter'),{type:'scatter',data:{datasets},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:textColor,usePointStyle:true}},tooltip:{callbacks:{label:c=>{const r=c.raw.raw; if(!r)return c.dataset.label;
+      if(r.event_id)return ['New event '+r.event_id,'Bytes sent '+r.bytes_sent+' · Port '+r.dst_port+' · Failed logins '+r.failed_login_count,'Probability '+r.probability.toFixed(3)];
+      return ['Actual: '+(r.actual?TARGET:'Not '+TARGET)+' · Predicted: '+(r.predicted?TARGET:'Not '+TARGET),'Bytes sent '+r.bytes_sent+' · Port '+r.dst_port+' · Failed logins '+r.failed_login_count,'Probability '+r.probability.toFixed(3)];}}}},
+    scales:{x:{type:useLogX?'logarithmic':'linear',...(useLogX?{}:{beginAtZero:true}),title:axisTitle(LABELS[xk]+(useLogX?' (log scale)':'')),ticks:{color:textColor},grid:{color:gridColor}},
+            y:{type:useLogY?'logarithmic':'linear',...(useLogY||yk==='probability'?{}:{beginAtZero:true}),title:axisTitle(LABELS[yk]+(useLogY?' (log scale)':'')),ticks:{color:textColor,...(yk==='probability'?{callback:v=>v<0||v>1?'':v.toFixed(1)}:{})},grid:{color:gridColor},...(yk==='probability'?{min:-.03,max:1.03}:{})}}}});
+  const bad=groups.bad.length;
+  document.getElementById('scatterHint').textContent=bad+' of '+POINTS.length+' test events were misclassified by '+SELECTED+' (yellow triangles). '+(yk==='probability'?'Dots above the dashed line are predicted as '+TARGET+'.':'');
+}
+[axisX,axisY,document.getElementById('logX'),document.getElementById('logY'),document.getElementById('jitter')].forEach(el=>el.addEventListener('change',buildScatter));
+buildScatter();
+
+new Chart(document.getElementById('importanceChart'),{type:'bar',data:{labels:IMPORTANCE.map(i=>i.parameter.replaceAll('_',' ')),datasets:[{label:'Importance',data:IMPORTANCE.map(i=>+(i.importance*100).toFixed(1)),backgroundColor:MODEL_COLORS[SELECTED],borderRadius:6}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x+'%'}}},scales:{x:{title:axisTitle('Share of model decisions (%)'),ticks:{color:textColor},grid:{color:gridColor}},y:{ticks:{color:textColor},grid:{display:false}}}}});
+{% endif %}
+const liveCanvas=document.getElementById('livePatterns');
+let liveChart, scoreChartL, recentChartL;
+const PAT_COLORS=['#d95b6a','#e09b45','#4aa5b5','#8a7fcf','#4aa98c'];
+const axL=(extra={})=>({x:{ticks:{color:textColor},grid:{color:gridColor},...(extra.x||{})},y:{beginAtZero:true,ticks:{color:textColor},grid:{color:gridColor},...(extra.y||{})}});
+function drawLive(d){
+  document.getElementById('liveTotal').textContent=d.total_events;document.getElementById('liveMalicious').textContent=d.predicted_malicious;document.getElementById('liveBenign').textContent=d.predicted_benign;
+  const labels=d.pattern_labels.map(x=>x.replaceAll('_',' '));
+  const bins=d.score_bins, binLabels=bins.map((_,i)=>(i/10).toFixed(1)+'-'+((i+1)/10).toFixed(1));
+  const rl=d.recent.map(r=>r.id), rv=d.recent.map(r=>r.score), rc=d.recent.map(r=>r.label==='Malicious'?'#d95b6a':'#4aa98c');
+  if(!liveChart){
+    liveChart=new Chart(liveCanvas,{type:'bar',data:{labels,datasets:[{label:'Predicted events',data:d.pattern_counts,backgroundColor:PAT_COLORS,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:axL()}});
+    scoreChartL=new Chart(document.getElementById('liveScores'),{type:'bar',data:{labels:binLabels,datasets:[{data:bins,backgroundColor:bins.map((_,i)=>i>=5?'#d95b6a':'#4aa98c'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:axL({x:{title:{display:true,text:'malicious probability',color:textColor}}})}});
+    recentChartL=new Chart(document.getElementById('liveRecent'),{type:'bar',data:{labels:rl,datasets:[{label:'Probability',data:rv,backgroundColor:rc,borderRadius:4,order:2},{type:'line',label:'Threshold 0.5',data:rl.map(()=>0.5),borderColor:'#7b8697',borderDash:[6,4],pointRadius:0,borderWidth:1.5,order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:textColor}}},scales:axL({y:{max:1},x:{ticks:{color:textColor,maxRotation:60}}})}});
+  }else{
+    liveChart.data.labels=labels;liveChart.data.datasets[0].data=d.pattern_counts;liveChart.update();
+    scoreChartL.data.datasets[0].data=bins;scoreChartL.data.datasets[0].backgroundColor=bins.map((_,i)=>i>=5?'#d95b6a':'#4aa98c');scoreChartL.update();
+    recentChartL.data.labels=rl;recentChartL.data.datasets[0].data=rv;recentChartL.data.datasets[0].backgroundColor=rc;recentChartL.data.datasets[1].data=rl.map(()=>0.5);recentChartL.update();
+  }
+}
+if(liveCanvas){drawLive({{ live_stats|tojson }});setInterval(()=>fetch('{{ url_for("ml_live_stats") }}').then(r=>r.json()).then(drawLive).catch(()=>{}),10000);}
+
+/* ---------- models retrain after every new event: reload this page when the new models are ready ---------- */
+(function(){
+  let trainedAt={{ (train_status.trained_at or '')|tojson }}, wasRunning={{ train_status.running|tojson }};
+  const title=document.getElementById('trainTitle'); if(!title)return;
+  function check(){
+    fetch('{{ url_for("ml_status") }}').then(r=>r.json()).then(s=>{
+      title.textContent=s.running?'Retraining models…':'Models are up to date';
+      if(s.trained_at && s.trained_at!==trainedAt && !s.running){ location.reload(); return; }
+      wasRunning=s.running;
+    }).catch(()=>{});
+  }
+  setInterval(check,4000);
+})();
+
+/* ---------- pattern graphs follow the database ---------- */
+(function(){
+  let sig={{ graph_meta.signature|tojson }}; const box=document.getElementById('gStatus'); if(!box)return;
+  function poll(){
+    fetch('{{ url_for("graphs_status") }}').then(r=>r.json()).then(m=>{
+      if(m.error)return;
+      document.getElementById('gStatusText').textContent=m.total+' events · '+m.new_events+' new ML-scored (gold stars) · graphs updated '+m.updated;
+      if(m.signature!==sig){sig=m.signature;
+        document.querySelectorAll('[data-file]').forEach(el=>{const v=m.versions[el.dataset.file]; if(!v)return; const url=el.dataset.base+'?v='+v; if(el.tagName==='IMG')el.src=url; else el.href=url;});
+        box.classList.add('g-flash'); setTimeout(()=>box.classList.remove('g-flash'),2500);}
+    }).catch(()=>{});
+  }
+  setInterval(poll,10000);
+})();
+</script>
+{% endblock %}

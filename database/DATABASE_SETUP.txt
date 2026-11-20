@@ -1,0 +1,49 @@
+SENTINELOPS AI - DATABASE SETUP AND DATA IMPORT
+
+1. Create the MySQL database once in MySQL Workbench:
+   CREATE DATABASE sentinelops_ai CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+2. Copy .env.example to .env in the project root. Keep .env private.
+
+3. Set DATABASE_URL in .env. For password sailu@9014, encode @ as %40:
+   DATABASE_URL=mysql+pymysql://root:sailu%409014@localhost:3306/sentinelops_ai
+   Use your actual MySQL username and password. The MySQL service must be running.
+
+4. Install dependencies in your activated virtual environment:
+   pip install -r requirements.txt
+
+5. Start the application:
+   python app.py
+
+6. Startup uses SQLAlchemy ORM:
+   - db.create_all() creates any missing ORM tables.
+   - import_starter_data() inserts missing rows from the CSV files into ORM models.
+   - Import is idempotent by primary key: restarting will not duplicate existing rows.
+   - Missing records are added even if a table already contains some rows.
+
+TABLES AND DATA SOURCES
+- app_users: 3 local demo login accounts (created by create_demo_accounts)
+- users: 50 directory users from data/users.csv
+- assets: 30 assets from data/assets.csv
+- security_events: 1,000 events from data/security_events.csv
+- alerts: 150 alerts from data/seed_alerts.csv
+- incidents: 25 incidents from data/seed_incidents.csv
+- audit_logs: startup import and subsequent user actions
+- incident_timeline: one starter import timeline entry per incident (25)
+- investigation_notes: one evidence-context note per incident (25)
+- ml_model_registry: populated after an Administrator runs Train & Compare Models
+
+The timeline and investigation notes are derived from the supplied incident, alert, and event records; they are marked as system starter context, not human investigation findings. The model registry is populated from actual training evaluation results, not fabricated metrics.
+
+EXPECTED STARTER ROW COUNTS ON A CLEAN DATABASE
+users=50; assets=30; security_events=1000; alerts=150; incidents=25;
+incident_timeline=25; investigation_notes=25; app_users=3.
+Audit log and model registry counts increase after app activity and model training.
+
+IMPORTANT
+- db.create_all() creates missing tables; it does not alter existing table columns.
+- Back up your database before making schema changes.
+- If you have an old DB with incomplete tables, the updated importer fills missing primary-key rows.
+- If your old schema differs, create a backup and use a fresh database or a migration before proceeding.
+- SQLite can be used for local testing by setting DATABASE_URL=sqlite:///sentinelops_ai.db.
+- Demo passwords are local demonstration credentials; change them before deployment.
