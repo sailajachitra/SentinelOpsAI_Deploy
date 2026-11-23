@@ -1,8 +1,27 @@
+﻿# Environment secrets
 .env
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Virtual environments
 .venv/
 venv/
-__pycache__/
-*.pyc
+sailaja_venv/
+
+# Local databases
 instance/
 *.db
-ml/artifacts/
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.log
+*.tmp
+
+# Git
+.git/

@@ -1390,4 +1390,6 @@ with app.app_context():
         print(f"[SentinelOps] start-up scoring skipped: {exc}")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get("X_ZOHO_CATALYST_LISTEN_PORT", 9000))
+    app.run(host="0.0.0.0", port=port, debug=False)
